@@ -23,4 +23,5 @@ requests==2.31.0
 tqdm==4.66.1
 urllib3==2.2.0
 environs
+gunicorn
 yarl==1.9.4
