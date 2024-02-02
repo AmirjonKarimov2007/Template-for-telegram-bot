@@ -25,3 +25,6 @@ urllib3==2.2.0
 environs
 gunicorn
 yarl==1.9.4
+django
+django-jazzmin
+psycopg2-binary
