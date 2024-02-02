@@ -19,6 +19,7 @@ DB_USER = env.str('DB_USER')
 DB_PASS = env.str('DB_PASS')
 DB_NAME = env.str('DB_NAME')
 DB_HOST = env.str('DB_HOST')
+DB_PORT = env.int('DB_PORT')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -85,11 +86,11 @@ WSGI_APPLICATION = 'telegram_bot.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'railway',
-        'USER': 'postgres',
-        'PASSWORD': 'A115e2224334D*2G5464G33GgCGb61DB',
-        'HOST': 'monorail.proxy.rlwy.net',
-        'PORT': 26144,
+        'NAME': DB_NAME,
+        'USER': DB_USER,
+        'PASSWORD': DB_PASS,
+        'HOST': DB_HOST,
+        'PORT': DB_PORT,
     }
 }
 
