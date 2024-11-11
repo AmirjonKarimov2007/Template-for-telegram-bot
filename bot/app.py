@@ -15,7 +15,7 @@ async def on_startup(dispatcher):
         await db.create_table_admins()
         await db.create_table_files()
     except Exception as err:
-        print(err)
+          print(err)
     # Get the user ID from the incoming update
     await set_default_commands(dispatcher)
     # Bot ishga tushgani haqida adminga xabar berish

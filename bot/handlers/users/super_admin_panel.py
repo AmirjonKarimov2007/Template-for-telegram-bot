@@ -1,6 +1,5 @@
 import time
 import datetime
-from utils.db_api.test import upload_instagram
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -30,6 +29,7 @@ async def add_admin_method(message: types.Message, state: FSMContext):
 @dp.message_handler(IsSuperAdmin(), state=SuperAdminState.SUPER_ADMIN_ADD_FULLNAME)
 async def add_admin_method(message: types.Message,state: FSMContext):
     try:
+        royxat = await db.select_admins()
         full_name = message.text
         await state.update_data({"full_name": full_name})
         malumot = await state.get_data()
@@ -37,15 +37,17 @@ async def add_admin_method(message: types.Message,state: FSMContext):
         adminid = malumot.get("admin_id")
         full_name = malumot.get("full_name")
         try:
-            # Convert user_id to integer before passing it to add_admin method
-            await db.add_admin(user_id=int(adminid), full_name=full_name)
-        except Exception as ex:
-            print(ex)
-        await bot.send_message(chat_id=adminid,text="tabriklaymiz siz botimizda adminlik huquqini qolgan kiritidingiz /start bosin")
-        await message.answer("✅ Yangi admin muvaffaqiyatli qo'shildi!", reply_markup=main_menu_for_super_admin)
-        await state.finish()
+            if adminid not in royxat:
+                await db.add_admin(user_id=int(adminid), full_name=full_name)
+                await bot.send_message(chat_id=adminid,text="tabriklaymiz siz botimizda adminlik huquqini qolgan kiritidingiz /start bosing.")
+                await message.answer("✅ Yangi admin muvaffaqiyatli qo'shildi!", reply_markup=main_menu_for_super_admin)
+                await state.finish()
+
+        except Exception as e:
+            await message.answer("Adminni qo'shishda muammo yuz berdi.Admin botga start bosganligi yoki botni bloklamganligiga ishonch hozil qiling.")
+            await state.finish()
+
     except Exception as e:
-        print(e)
         await message.answer("❌ Xatolik yuz berdi!", reply_markup=main_menu_for_super_admin)
         await state.finish()
 
@@ -156,7 +158,6 @@ async def del_admin_method(call: types.CallbackQuery):
     delete_orders = await db.delete_channel(channel=data[1])
     await call.answer("🗑 Channel o'chirildi !",show_alert=True)
     await call.message.edit_text("✅ Kanal muvaffaqiyatli o'chirildi!", reply_markup=main_menu_for_super_admin)
-# MAJBURIY OBUNA SOZLASH UCHUN
 
 # ADMINLARNI KORISH
 @dp.callback_query_handler(text="admins")
@@ -221,7 +222,6 @@ async def send_advertisement_to_user(message: types.Message,state: FSMContext):
 
         await message.answer("✅ Reklama muvaffaqiyatli yuborildi!", reply_markup=main_menu_for_super_admin)
         await state.finish()
-# ADMINGA SEND FUNC TUGADI
 
 # ====================Foydalanuvchliar uchun SEND SUNC  ============================
 @dp.callback_query_handler(IsSuperAdmin(), text="send_advertisement", state="*")
@@ -280,75 +280,75 @@ async def add_post(call: types.CallbackQuery):
     await SuperAdminState.SUPER_ADMIN_ADD_POST.set()
 
 from typing import List, Union
-@dp.message_handler(IsSuperAdmin(),state=SuperAdminState.SUPER_ADMIN_ADD_POST,
-                    content_types=types.ContentTypes.ANY)
-@dp.message_handler(is_media_group=True, content_types=types.ContentType.ANY)
-async def add_post_to_social(message: types.Message,state: FSMContext):
+# @dp.message_handler(IsSuperAdmin(),state=SuperAdminState.SUPER_ADMIN_ADD_POST,
+#                     content_types=types.ContentTypes.ANY)
+# @dp.message_handler(is_media_group=True, content_types=types.ContentType.ANY)
+# async def add_post_to_social(message: types.Message,state: FSMContext):
 
-    file = message.content_type
-    niamdir = message.content_type
-    users =  await db.stat()
-    admin_id = message.from_user.id
-    caption = message.caption
+#     file = message.content_type
+#     niamdir = message.content_type
+#     users =  await db.stat()
+#     admin_id = message.from_user.id
+#     caption = message.caption
     
-    caption_entities = message.caption_entities
-    urls = []
+#     caption_entities = message.caption_entities
+#     urls = []
 
-    for caption_entry in caption_entities:
-        if caption_entry.type == 'text_link':
-            urls.append(caption_entry.url)
-    users = str(users)
-    for x in users:
-        user = await db.select_all_users()
-        for i in user:
-            user_id = i['user_id']
-            try:
-                await bot.copy_message(
-                    chat_id=user_id,
-                    from_chat_id=message.from_user.id,
-                    message_id=message.message_id,
-                    reply_markup=message.reply_markup
-                )
+#     for caption_entry in caption_entities:
+#         if caption_entry.type == 'text_link':
+#             urls.append(caption_entry.url)
+#     users = str(users)
+#     for x in users:
+#         user = await db.select_all_users()
+#         for i in user:
+#             user_id = i['user_id']
+#             try:
+#                 await bot.copy_message(
+#                     chat_id=user_id,
+#                     from_chat_id=message.from_user.id,
+#                     message_id=message.message_id,
+#                     reply_markup=message.reply_markup
+#                 )
 
-                time.sleep(0.5)
-            except Exception as e:
-                await bot.send_message(admin_id, e)
+#                 time.sleep(0.5)
+#             except Exception as e:
+#                 await bot.send_message(admin_id, e)
 
-        # await message.answer("✅ Reklama muvaffaqiyatli yuborildi!", reply_markup=main_menu_for_super_admin)
+#         # await message.answer("✅ Reklama muvaffaqiyatli yuborildi!", reply_markup=main_menu_for_super_admin)
     
-    channels = await db.channel_stat()
-    channels = str(channels)
+#     channels = await db.channel_stat()
+#     channels = str(channels)
 
-    for y in channels:
+#     for y in channels:
 
-        await message.answer(f"📢 Reklama jo'natish boshlandi...\n"
-                             f"📊 Foydalanuvchilar soni: {x} ta\n"
-                             f"📌 Kanallar soni: {y} ta\n"
-                             f"🕒 Kuting...\n")
-        channels = await db.select_all_channels()
-        for i in channels:
-            channel=i['channel']
-            channel_info = await bot.get_chat(channel)
-            channel = channel_info.id
-            try:
-                await bot.copy_message(chat_id=channel, from_chat_id=admin_id,
-                                       message_id= message.message_id,reply_markup=message.reply_markup, parse_mode=types.ParseMode.HTML)
+#         await message.answer(f"📢 Reklama jo'natish boshlandi...\n"
+#                              f"📊 Foydalanuvchilar soni: {x} ta\n"
+#                              f"📌 Kanallar soni: {y} ta\n"
+#                              f"🕒 Kuting...\n")
+#         channels = await db.select_all_channels()
+#         for i in channels:
+#             channel=i['channel']
+#             channel_info = await bot.get_chat(channel)
+#             channel = channel_info.id
+#             try:
+#                 await bot.copy_message(chat_id=channel, from_chat_id=admin_id,
+#                                        message_id= message.message_id,reply_markup=message.reply_markup, parse_mode=types.ParseMode.HTML)
                 
                 
-                time.sleep(0.5)
-            except Exception as e:
-                await bot.send_message(admin_id,e)
-        await message.answer("✅ Reklama muvaffaqiyatli yuborildi!", reply_markup=main_menu_for_super_admin)
-# =================== ADD POST ON INSTAGRAM =================================
-        file_type = message.content_type
-        if file_type=='photo':
-            photo = message.photo[-1]
-            file_id = photo.file_id
-            caption = f"\n{message.caption}\n"
-            rasm = await upload_instagram(content_type=file_type,file_id=file_id,photo=photo,caption=caption)
+#                 time.sleep(0.5)
+#             except Exception as e:
+#                 await bot.send_message(admin_id,e)
+#         await message.answer("✅ Reklama muvaffaqiyatli yuborildi!", reply_markup=main_menu_for_super_admin)
+# # =================== ADD POST ON INSTAGRAM =================================
+#         file_type = message.content_type
+#         if file_type=='photo':
+#             photo = message.photo[-1]
+#             file_id = photo.file_id
+#             caption = f"\n{message.caption}\n"
+#             rasm = await upload_instagram(content_type=file_type,file_id=file_id,photo=photo,caption=caption)
 
 
-    await state.finish()
+#     await state.finish()
 
 
 #Media group uchun handler yozdim

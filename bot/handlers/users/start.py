@@ -1,21 +1,19 @@
-from time import sleep
 import logging
 from aiogram import types
-from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.types import CallbackQuery
-from data.config import ADMINS
 from filters import IsUser, IsSuperAdmin, IsGuest
 from filters.admins import IsAdmin
 from keyboards.inline.main_menu_super_admin import main_menu_for_super_admin, main_menu_for_admin
-from loader import dp, db, bot
-from states.send_chanell import SuperAdminStateChannel
+from loader import db,dp,bot
 import asyncpg
 logging.basicConfig(level=logging.INFO)
 
 @dp.callback_query_handler(text="start")
-async def bot_echo(message: CallbackQuery):
-    user = message.from_user
+async def bot_echo(call: CallbackQuery):
+    await call.answer(cache_time=1)
+    user = call.from_user
+    await call.message.delete()
     try:
         await db.add_user(user_id=user.id, name=user.first_name)
     except:
@@ -27,10 +25,9 @@ async def bot_echo(message: CallbackQuery):
 async def bot_start_admin(message: types.Message):
     await message.answer(f"Assalom alaykum Admin, {message.from_user.full_name}!",
                          reply_markup=main_menu_for_admin)
-
 @dp.message_handler(IsSuperAdmin(), CommandStart(), state="*")
 async def bot_start_super_admin(message: types.Message):
-    await message.answer(f"Assalom alaykum Bosh Admin, {message.from_user.full_name}!",
+    await message.answer(f"<b>Assalom alaykum Bosh Admin, <a href='tg://user?id={message.from_user.id}'>{message.from_user.full_name}</a>!</b>",
                          reply_markup=main_menu_for_super_admin)
 
 @dp.message_handler(IsGuest(), CommandStart(), state="*")
@@ -39,10 +36,10 @@ async def bot_start(message: types.Message):
     username = message.from_user.username
     try:
         await db.add_user(user_id=user.id,username=username, name=user.first_name)
-    except Exception as ex:
-        print(ex)
     except asyncpg.exceptions.UniqueViolationError:
-        user = await db.select_user(telegram_id=message.from_user.id)
+        await db.select_user(user_id=message.from_user.id)
+    except Exception as ex:
+        print(f"IsGuest:{ex}")
 
     if 2 == len(message.text.split(' ')) > 0:
         return await idsave(message, message.text.split(' ')[1])
@@ -55,15 +52,17 @@ async def bot_start(message: types.Message):
     username = message.from_user.username
     try:
         await db.add_user(user_id=user.id,username=username, name=user.first_name)
-    except Exception as ex:
-        print(ex)
     except asyncpg.exceptions.UniqueViolationError:
-        user = await db.select_user(telegram_id=message.from_user.id)
+        await db.select_user(user_id=message.from_user.id)
+    except Exception as ex:
+        print(f"IsUser:{ex}")
 
     if 2 == len(message.text.split(' ')) > 0:
         return await idsave(message, message.text.split(' ')[1])
     user_id = message.from_user.first_name
+    user_id = message.from_user.first_name
     await message.reply(f"<b>👋🏻 Assalomu Aleykum {user_id} botimizga Xush kelipsiz!</b>")
+
 
 async def idsave(message: types.Message, text=None):
     try:

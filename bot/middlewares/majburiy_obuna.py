@@ -39,6 +39,11 @@ class Asosiy(BaseMiddleware):
                 royxat.append(button)
         royxat.append([InlineKeyboardButton(text="✅ Tekshirish", callback_data="start")])
         if not dastlabki:
+            if xabar.callback_query:
+                data = xabar.callback_query.data
+                if data=='start':
+                    await xabar.callback_query.message.delete()
+                    
             await bot.send_message(chat_id=user_id, text=matn, disable_web_page_preview=True,
                                     reply_markup=InlineKeyboardMarkup(inline_keyboard=royxat))
             raise CancelHandler()
