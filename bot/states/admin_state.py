@@ -11,3 +11,5 @@ class SuperAdminState(StatesGroup):
     SUPER_ADMIN_ADD_POST = State()
     SUPER_ADMIN_UPDATE_CAPTION = State()
     SUPER_ADMIN_UPDATE_PHOTO = State()
+    SUPER_ADMIN_UPDATE_ADD_KEYBOARD = State()
+    SUPER_ADMIN_UPDATE_SEND_CHANNEL = State()

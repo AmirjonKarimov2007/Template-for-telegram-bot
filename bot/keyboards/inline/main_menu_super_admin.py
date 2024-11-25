@@ -7,6 +7,7 @@ main_menu_for_super_admin.add(InlineKeyboardButton(text="➕ Kanal qo'shish", ca
                               InlineKeyboardButton(text="➕ Admin qo'shish", callback_data="add_admin"),
                               InlineKeyboardButton(text="➖ Admin o'chirish", callback_data="del_admin"),
                               InlineKeyboardButton(text="➕ Post qo'shish   ", callback_data="add_post"),
+                              InlineKeyboardButton(text="➕ Tugma Qo'shish", callback_data="add_keyboard"),
                               InlineKeyboardButton(text="👤 Adminlar", callback_data="admins"),
                               InlineKeyboardButton(text="📝 Adminlarga Xabar yuborish",callback_data="send_message_to_admins"),
                               InlineKeyboardButton(text="📝 Reklama Jo'natish", callback_data="send_advertisement"),
