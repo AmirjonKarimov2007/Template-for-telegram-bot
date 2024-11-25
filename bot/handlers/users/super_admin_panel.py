@@ -25,6 +25,7 @@ async def add_admin_method(message: types.Message, state: FSMContext):
     await message.answer("👨🏻‍💻 Yangi admin ismini yuborin",
                                  reply_markup=back_to_main_menu)
     await SuperAdminState.SUPER_ADMIN_ADD_FULLNAME.set()
+    
 #Dasturchi @Mrgayratov kanla @Kingsofpy
 @dp.message_handler(IsSuperAdmin(), state=SuperAdminState.SUPER_ADMIN_ADD_FULLNAME)
 async def add_admin_method(message: types.Message,state: FSMContext):
@@ -180,15 +181,13 @@ async def channel_list(call: types.CallbackQuery):
 async def stat(call : types.CallbackQuery):
     stat = await db.stat()
     stat = str(stat)
-    for x in stat:
-        dta = x
-        datas = datetime.datetime.now()
-        yil_oy_kun = (datetime.datetime.date(datetime.datetime.now()))
-        soat_minut_sekund = f"{datas.hour}:{datas.minute}:{datas.second}"
-        await call.message.delete()
-        await call.message.answer(f"<b>👥 Bot foydalanuvchilari soni: {(x)} nafar\n</b>"
-                                  f"<b>⏰ Soat: {soat_minut_sekund}\n</b>"
-                                  f"<b>📆 Sana: {yil_oy_kun}</b>",reply_markup=types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("◀️ Orqaga",callback_data="back_to_main_menu")))
+    await call.message.delete()
+    datas = datetime.datetime.now()
+    yil_oy_kun = (datetime.datetime.date(datetime.datetime.now()))
+    soat_minut_sekund = f"{datas.hour}:{datas.minute}:{datas.second}"
+    await call.message.answer(f"<b>👥 Bot foydalanuvchilari soni: {(stat)} nafar\n</b>"
+                                f"<b>⏰ Soat: {soat_minut_sekund}\n</b>"
+                                f"<b>📆 Sana: {yil_oy_kun}</b>",reply_markup=types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("◀️ Orqaga",callback_data="back_to_main_menu")))
 
 
 # ADMINGA SEND FUNC
@@ -251,7 +250,7 @@ async def send_advertisement_to_user(message: types.Message, state: FSMContext):
             msg = await bot.copy_message(chat_id=user_id, from_chat_id=message.chat.id,
                                             message_id=message.message_id,reply_markup=message.reply_markup)
             white_list += 1
-            time.sleep(0.5)
+            time.sleep(0.3)
         except Exception as e:
             black_list += 1
     data = datetime.datetime.now()
@@ -265,6 +264,7 @@ async def send_advertisement_to_user(message: types.Message, state: FSMContext):
     await bot.delete_message(chat_id=start_msg.chat.id,message_id=start_msg.message_id)
     await message.answer(text, reply_markup=main_menu_for_super_admin)
     await state.finish()
+
 
 
 # ==================== Foydalanuvchliar uchun SEND SUNC TUGADI ============================
