@@ -47,7 +47,9 @@ class Asosiy(BaseMiddleware):
                 data = xabar.callback_query.data
                 if data=='start':
                     await xabar.callback_query.message.delete()
-                    
-            await bot.send_message(chat_id=user_id, text=matn, disable_web_page_preview=True,
-                                    reply_markup=InlineKeyboardMarkup(inline_keyboard=royxat))
+            try:
+                await bot.send_message(chat_id=user_id, text=matn, disable_web_page_preview=True,
+                                        reply_markup=InlineKeyboardMarkup(inline_keyboard=royxat))
+            except:
+                pass
             raise CancelHandler()
