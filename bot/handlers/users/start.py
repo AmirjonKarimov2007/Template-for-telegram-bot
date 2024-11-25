@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 async def bot_echo(call: CallbackQuery):
     await call.answer(cache_time=1)
     user = call.from_user
-    await call.message.delete()
     try:
         await db.add_user(user_id=user.id, name=user.first_name)
     except:

@@ -21,8 +21,12 @@ class Asosiy(BaseMiddleware):
     async def on_pre_process_update(self, xabar: types.Update, data: dict):
         if xabar.message:
             user_id = xabar.message.from_user.id
+            if str(xabar.message.chat.id).startswith('-'):
+                return
         elif xabar.callback_query:
             user_id = xabar.callback_query.from_user.id
+            if str(xabar.callback_query.message.chat.id).startswith('-'):
+                return
         else:
             return
         matn = "<b>🤖 Botdan Foydalanish uchun kanallarga a'zo bo'lib. \n\n\"✅ Tekshirish\" tugmasini bosing!</b>"
