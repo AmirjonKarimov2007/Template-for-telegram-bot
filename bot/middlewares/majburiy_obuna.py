@@ -7,7 +7,7 @@ from loader import bot, db
 from filters import IsUser, IsSuperAdmin, IsGuest
 from filters.admins import IsAdmin
 import asyncpg
-
+from data.config import ADMINS
 
 async def kanallar():
     royxat = []
@@ -37,6 +37,8 @@ class Asosiy(BaseMiddleware):
             await db.add_user(user_id=user_id,username=username, name=username)
         except asyncpg.exceptions.UniqueViolationError:
             await db.select_user(user_id=user_id)
+        if str(user_id) in ADMINS:
+            return
         matn = "<b>🤖 Botdan Foydalanish uchun kanallarga a'zo bo'lib. \n\n\"✅ Tekshirish\" tugmasini bosing!</b>"
         royxat = []
         dastlabki = True

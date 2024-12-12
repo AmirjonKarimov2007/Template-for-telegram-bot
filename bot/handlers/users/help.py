@@ -17,4 +17,4 @@ async def bot_help(message: types.Message):
     
 @dp.message_handler(IsBlocked())
 async def echo(message: types.Message):
-    await message.answer(f"<b>Siz botimizdan Blocklangansiz</b>")
+    await message.answer(f"<b>🚫Siz botimizdan Blocklangansiz</b>")
