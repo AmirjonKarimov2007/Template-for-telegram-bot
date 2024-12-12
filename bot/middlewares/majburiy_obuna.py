@@ -6,6 +6,7 @@ from data.tekshirish import tekshir
 from loader import bot, db
 from filters import IsUser, IsSuperAdmin, IsGuest
 from filters.admins import IsAdmin
+import asyncpg
 
 
 async def kanallar():
@@ -21,14 +22,21 @@ class Asosiy(BaseMiddleware):
     async def on_pre_process_update(self, xabar: types.Update, data: dict):
         if xabar.message:
             user_id = xabar.message.from_user.id
+            username = xabar.message.from_user.username
             if str(xabar.message.chat.id).startswith('-'):
                 return
         elif xabar.callback_query:
             user_id = xabar.callback_query.from_user.id
+            username = xabar.callback_query.from_user.username
+
             if str(xabar.callback_query.message.chat.id).startswith('-'):
                 return
         else:
             return
+        try:
+            await db.add_user(user_id=user_id,username=username, name=username)
+        except asyncpg.exceptions.UniqueViolationError:
+            await db.select_user(user_id=user_id)
         matn = "<b>🤖 Botdan Foydalanish uchun kanallarga a'zo bo'lib. \n\n\"✅ Tekshirish\" tugmasini bosing!</b>"
         royxat = []
         dastlabki = True

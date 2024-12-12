@@ -8,7 +8,6 @@ from filters import IsSuperAdmin
 from keyboards.inline.main_menu_super_admin import main_menu_for_super_admin, back_to_main_menu
 from loader import dp, db, bot
 from states.admin_state import SuperAdminState
-from middlewares.MediaGroup import AlbumMiddleware
 # ADMIN TAYORLASH VA CHIQARISH QISMI UCHUN
 @dp.callback_query_handler(IsSuperAdmin(), text="add_admin", state="*")
 async def add_admin(call: types.CallbackQuery):
@@ -177,18 +176,33 @@ async def channel_list(call: types.CallbackQuery):
 # ADMINLARNI KORISH
 
 # STATISKA KORISH UCHUN
-@dp.callback_query_handler(text="statistics")
-async def stat(call : types.CallbackQuery):
-    stat = await db.stat()
-    stat = str(stat)
-    await call.message.delete()
-    datas = datetime.datetime.now()
-    yil_oy_kun = (datetime.datetime.date(datetime.datetime.now()))
-    soat_minut_sekund = f"{datas.hour}:{datas.minute}:{datas.second}"
-    await call.message.answer(f"<b>👥 Bot foydalanuvchilari soni: {(stat)} nafar\n</b>"
-                                f"<b>⏰ Soat: {soat_minut_sekund}\n</b>"
-                                f"<b>📆 Sana: {yil_oy_kun}</b>",reply_markup=types.InlineKeyboardMarkup().add(types.InlineKeyboardButton("◀️ Orqaga",callback_data="back_to_main_menu")))
+import pytz
+import datetime
 
+@dp.callback_query_handler(IsSuperAdmin(), text="statistics")
+async def stat(call: types.CallbackQuery):
+    uzbekistan_tz = pytz.timezone('Asia/Tashkent')
+    datas = datetime.datetime.now(uzbekistan_tz)
+    yil_oy_kun = datas.date()
+    soat_minut_sekund = f"{datas.hour}:{datas.minute}:{datas.second}"
+
+    daily_stat = await db.stat(timeframe="daily")
+    weekly_stat = await db.stat(timeframe="weekly")
+    monthly_stat = await db.stat(timeframe="monthly")
+
+    stat_message = f"<b>👥 Bot foydalanuvchilari soni:</b>\n"
+    stat_message += f"<b>📅 Kunlik: {daily_stat} nafar</b>\n"
+    stat_message += f"<b>📆 Haftalik: {weekly_stat} nafar</b>\n"
+    stat_message += f"<b>📅 Oylik: {monthly_stat} nafar</b>\n"
+    stat_message += f"<b>⏰ Soat: {soat_minut_sekund}</b>\n"
+    stat_message += f"<b>📆 Sana: {yil_oy_kun}</b>"
+
+    inline_button = types.InlineKeyboardMarkup().add(
+        types.InlineKeyboardButton("◀️ Orqaga", callback_data="back_to_main_menu")
+    )
+
+    await call.message.delete()
+    await call.message.answer(stat_message, reply_markup=inline_button)
 
 # ADMINGA SEND FUNC
 @dp.callback_query_handler(IsSuperAdmin(), text="send_message_to_admins", state="*")
@@ -435,7 +449,6 @@ async def send_channel(call: types.CallbackQuery,):
     channel_username = call.data.rsplit(":")[1]
     message_id = call.data.rsplit(":")[2]
     markup =  InlineKeyboardMarkup(row_width=1)
-    markup.add(InlineKeyboardButton(text="🤖Botga O'tish",url="t.me/Vips_premiumbot"))
     markup.add(InlineKeyboardButton(text="🧑‍💻Dasturchi",url="t.me/Amirjon_Karimov"))
     await bot.copy_message(chat_id=channel_username,
                            from_chat_id=call.from_user.id,message_id=message_id,reply_markup=markup)
@@ -449,11 +462,3 @@ async def back_to_main_menu_method(call: types.CallbackQuery,state: FSMContext):
     await call.message.edit_text(text="👨‍💻 Bosh menyu", reply_markup=main_menu_for_super_admin)
     await state.finish()
 
-from typing import List
-
-# ======== Media GRoup Handler ===============
-
-
-
-
-# Tugma qo'shish uchun
