@@ -23,18 +23,20 @@ class Asosiy(BaseMiddleware):
         if xabar.message:
             user_id = xabar.message.from_user.id
             username = xabar.message.from_user.username
+            first_name = xabar.message.from_user.first_name
             if str(xabar.message.chat.id).startswith('-'):
                 return
         elif xabar.callback_query:
             user_id = xabar.callback_query.from_user.id
             username = xabar.callback_query.from_user.username
+            first_name = xabar.callback_query.from_user.first_name
 
             if str(xabar.callback_query.message.chat.id).startswith('-'):
                 return
         else:
             return
         try:
-            await db.add_user(user_id=user_id,username=username, name=username)
+            await db.add_user(user_id=user_id,username=username, name=first_name)
         except asyncpg.exceptions.UniqueViolationError:
             await db.select_user(user_id=user_id)
         if str(user_id) in ADMINS:
