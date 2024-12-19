@@ -232,7 +232,7 @@ async def send_advertisement_to_user(message: types.Message, state: FSMContext):
     errors = []
 
     async def send_message(user_id):
-        nonlocal black_list, white_list
+        nonlocal black_list, white_list,seriy_list
         async with semaphore:
             try:
                 await bot.copy_message(chat_id=user_id, from_chat_id=message.chat.id,
@@ -294,7 +294,7 @@ async def send_advertisement_to_user(message: types.Message, state: FSMContext):
     errors = []
 
     async def send_message(user_id):
-        nonlocal black_list, white_list
+        nonlocal black_list, white_list,seriy_list
         async with semaphore:
             try:
                 await bot.copy_message(chat_id=user_id, from_chat_id=message.chat.id,
