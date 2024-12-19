@@ -8,6 +8,8 @@ from filters import IsUser, IsSuperAdmin, IsGuest
 from filters.admins import IsAdmin
 import asyncpg
 from data.config import ADMINS
+import re
+import html
 
 async def kanallar():
     royxat = []
@@ -26,6 +28,8 @@ class Asosiy(BaseMiddleware):
             first_name = xabar.message.from_user.first_name
             if str(xabar.message.chat.id).startswith('-'):
                 return
+            cleaned_text = re.sub(r"<[^>]*>", "", xabar.message.text)
+            xabar.message.text = html.escape(cleaned_text.strip())
         elif xabar.callback_query:
             user_id = xabar.callback_query.from_user.id
             username = xabar.callback_query.from_user.username
