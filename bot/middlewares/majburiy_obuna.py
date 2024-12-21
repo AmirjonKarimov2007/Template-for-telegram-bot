@@ -23,13 +23,15 @@ async def kanallar():
 class Asosiy(BaseMiddleware):
     async def on_pre_process_update(self, xabar: types.Update, data: dict):
         if xabar.message:
+            if xabar.message.text:
+                cleaned_text = re.sub(r"<[^>]*>", "", xabar.message.text)
+                xabar.message.text = html.escape(cleaned_text.strip())
             user_id = xabar.message.from_user.id
             username = xabar.message.from_user.username
             first_name = xabar.message.from_user.first_name
             if str(xabar.message.chat.id).startswith('-'):
                 return
-            cleaned_text = re.sub(r"<[^>]*>", "", xabar.message.text)
-            xabar.message.text = html.escape(cleaned_text.strip())
+            
         elif xabar.callback_query:
             user_id = xabar.callback_query.from_user.id
             username = xabar.callback_query.from_user.username

@@ -418,41 +418,98 @@ from typing import List, Union
 async def add_keyboard(call: types.CallbackQuery):
     await call.answer(cache_time=1)
     try:
-        await call.message.edit_text("Tugma qo'shish uchun postni yuboring...\n"
+        await call.message.edit_text("Tugma qo'shish uchun tugmaning nomini  yuboring...\n"
                                  "Yoki bekor qilish tugmasini bosing", reply_markup=back_to_main_menu)
-        await SuperAdminState.SUPER_ADMIN_UPDATE_ADD_KEYBOARD.set()
+        await SuperAdminState.SUPER_ADMIN_UPDATE_GET_KEYBOARD_NAME.set()
     except:
         pass
 
+@dp.message_handler(IsSuperAdmin(),content_types=types.ContentType.TEXT,state=SuperAdminState.SUPER_ADMIN_UPDATE_GET_KEYBOARD_NAME)
+async def get_name(message: types.Message,state:FSMContext):
+    keyboard_name = message.text
+    try:
+        await state.update_data({"keybaord_name":{keyboard_name}})
+        await message.answer("Yaxshi endi tugma uchun link yuboring.")
+        await SuperAdminState.SUPER_ADMIN_UPDATE_GET_KEYBOARD_URL.set()
+    except:
+        await message.answer(text="Tugma qo'shish bekor qilindi,qaytadan urining.")
+        await state.finish()
+
+import re
+
+@dp.message_handler(IsSuperAdmin(),content_types=types.ContentType.TEXT,state=SuperAdminState.SUPER_ADMIN_UPDATE_GET_KEYBOARD_URL)
+async def get_link(message: types.Message,state:FSMContext):
+    link = message.text
+    # Link validatsiyasi
+    link_pattern = re.compile(
+        r"^(https?://)?(www\.)?(t\.me|telegram\.me)/[a-zA-Z0-9_]+$"
+    )
+    try:
+        if link_pattern.match(link):
+            try:
+                await state.update_data({"keyboard_link": link})
+                await message.answer("Yaxshi yubormoqchi bo'lgan postingizni yuboring.")
+                await SuperAdminState.SUPER_ADMIN_UPDATE_ADD_KEYBOARD.set()   
+            except Exception as e:
+                await message.answer(f"Tugma qo'shishda xatolik yuz berdi: {e}")
+                await state.finish()
+        else:
+            await message.answer(
+                "Noto'g'ri link format kiritildi. Qaytadan urinib ko'ring.\nMasalan: https://example.com yoki www.example.com"
+            )
+    except Exception as e:
+        print(e)
+        await state.finish()
+
+
+
 @dp.message_handler(IsSuperAdmin(),content_types=types.ContentType.ANY,state=SuperAdminState.SUPER_ADMIN_UPDATE_ADD_KEYBOARD)
 async def send_keyboard(message: types.Message,state:FSMContext):
-    await state.update_data({"message_id":message.message_id})
-    royxat = await db.select_channels()
-    text = "🔰 Kanalni Tanlang:\n\n"
-    son = 0
-    for o in royxat:
-        son +=1
-        text += f"{son}. {o[1]}\n💠 Username: {o[1]}\n\n"
-    channels =await db.select_all_channels()
-    buttons = InlineKeyboardMarkup(row_width=1)
-    for channel in channels:
-        buttons.insert(InlineKeyboardButton(text=f"{channel[1]}", callback_data=f"channel_send:{channel[1]}:{message.message_id}"))
+    try:
+        royxat = await db.select_channels()
+        text = "🔰 Kanalni Tanlang:\n\n"
+        son = 0
+        data = await state.get_data()
+        name = data.get("keybaord_name")
+        name = list(name)[0]
+        link = data.get("keyboard_link")
+        for o in royxat:
+            son +=1
+            text += f"{son}. {o[1]}\n💠 Username: {o[1]}\n\n"
+        channels =await db.select_all_channels()
+        buttons = InlineKeyboardMarkup(row_width=1)
+        for channel in channels:
+            buttons.insert(InlineKeyboardButton(text=f"{channel[1]}", callback_data=f"channel_send:{channel[1]}:{message.message_id}:{name}"))
 
-    buttons.insert(InlineKeyboardButton(text="⬅️ Orqaga", callback_data="back_to_main_menu"))
-    # await bot.copy_message(chat_id="@Amirjon_Karimov_Blog",from_chat_id=user_id,message_id=message.message_id,reply_markup=markup)
-    await message.answer(text=text, reply_markup=buttons)
-    await state.finish()
+        buttons.insert(InlineKeyboardButton(text="⬅️ Orqaga", callback_data="back_to_main_menu"))
+        await message.answer(text=text, reply_markup=buttons)
+        await SuperAdminState.SUPER_ADMIN_UPDATE_SEND_CHANNEL.set()   
+    except Exception as e:
+        await message.answer(f"Tugma qo'shishda xatolik yuz berdi: {e}")
+        await state.finish()
 
-@dp.callback_query_handler(IsSuperAdmin(),text_contains="channel_send:")
-async def send_channel(call: types.CallbackQuery,):
+    
+
+@dp.callback_query_handler(IsSuperAdmin(),text_contains="channel_send:",state=SuperAdminState.SUPER_ADMIN_UPDATE_SEND_CHANNEL)
+async def send_channel(call: types.CallbackQuery,state: FSMContext):
     await call.answer(cache_time=1)
     channel_username = call.data.rsplit(":")[1]
     message_id = call.data.rsplit(":")[2]
+    info = await state.get_data()
+    link = info.get("keyboard_link")
+    name = call.data.rsplit(":")[3]
     markup =  InlineKeyboardMarkup(row_width=1)
-    markup.add(InlineKeyboardButton(text="🧑‍💻Dasturchi",url="t.me/Amirjon_Karimov"))
-    await bot.copy_message(chat_id=channel_username,
+    markup.add(InlineKeyboardButton(text=name,url=link))
+    try:
+        await bot.copy_message(chat_id=channel_username,
                            from_chat_id=call.from_user.id,message_id=message_id,reply_markup=markup)
-    await call.message.edit_text(text="✅Kanalga post muvaffaqiyatli yuborildi.",reply_markup=main_menu_for_super_admin)
+        await call.message.edit_text(text="✅Kanalga post muvaffaqiyatli yuborildi.",reply_markup=main_menu_for_super_admin)
+        await state.finish()
+    except Exception as e:
+        await call.message.answer(f"xatolik:{e}")
+
+
+
 
 
 # Bosh menu
