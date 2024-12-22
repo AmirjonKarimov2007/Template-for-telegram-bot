@@ -10,7 +10,6 @@ from random import choice
 from datetime import datetime
 CHANNELS = {'@Amirjon_Karimov_Blog':523, '@Amirjon_Karimov_Life':113}
 
-# Reaktsiyalar ro'yxati
 reactions = ["👍", "❤", "🔥", "🥰", "👏", "🎉", "🤩", "👌", "😍", "❤‍🔥", "💯", "🤣", "⚡", "🏆", "🍓", "🍾", "💋", "🎃", "😇", "🤝", "😘"]
 
 async def periodic_reaction(dp):
@@ -35,7 +34,6 @@ async def periodic_reaction(dp):
             
         await asyncio.sleep(23)
 
-        # Har 20 soniyada qayta ishga tushadi
 
 async def on_startup(dispatcher):
     # Birlamchi komandaPlar (/star va /help)
