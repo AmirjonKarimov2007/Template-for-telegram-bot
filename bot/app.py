@@ -8,32 +8,52 @@ from utils.set_bot_commands import set_default_commands
 import asyncio
 from random import choice
 from datetime import datetime
-CHANNELS = {'@Amirjon_Karimov_Blog':523, '@Amirjon_Karimov_Life':113}
+import json
+
+# CHANNELS = {'@Amirjon_Karimov_Blog':523, '@Amirjon_Karimov_Life':113}
 # tugirlandi
-reactions = ["👍", "❤", "🔥", "🥰", "👏", "🎉", "🤩", "👌", "😍", "❤‍🔥", "💯", "🤣", "⚡", "🏆", "🍓", "🍾", "💋", "🎃", "😇", "🤝", "😘"]
+reactions = ["👍", "❤", "🔥", "🥰", "👏", "🎉", "🤩", "⚡", "👌", "😍", "❤‍🔥", "💯", "🤣", "🏆", "🍓", "🍾", "💋", "🎃", "😇", "🤝", "😘"]
 
 async def periodic_reaction(dp):
     while True:
-        for channel,message_id in CHANNELS.items():
+        with open('channels_info.json','r') as f:
+            data = json.load(f)
+        channels = list(data.keys())
+        if channels:
+            for channel in channels:
+                try:
+                    reaction = f'{{"type": "emoji", "emoji": "{choice(reactions)}"}}'
+                    await dp.bot.request(
+                        method="setMessageReaction",
+                        data={
+                            "chat_id": channel,
+                            "message_id": data[channel]['message_id'],
+                            "reaction": f"[{reaction}]"
+                        }
+                    )
+                except Exception as e:
+                    await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}")
+                    del data[channel]
+                    with open('channels_info.json', 'w') as file:
+                        json.dump(data, file, indent=4)
+                await asyncio.sleep(3)
+            
+            await asyncio.sleep(23)
+        else:
             try:
                 reaction = f'{{"type": "emoji", "emoji": "{choice(reactions)}"}}'
-                reaksiya = await dp.bot.request(
+                await dp.bot.request(
                     method="setMessageReaction",
                     data={
-                        "chat_id": channel,
-                        "message_id": message_id,
+                        "chat_id": "@Amirjon_Karimov_Blog",
+                        "message_id": 500,
                         "reaction": f"[{reaction}]"
                     }
                 )
-                print(reaksiya)
                 print(f"bosildi:kanel{channel}:{reaction}")
             except Exception as e:
-                print(f"Error: {e}:{reaction}")
                 await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}")
-            await asyncio.sleep(3)
-            
-        await asyncio.sleep(23)
-
+            await asyncio.sleep(20)
 
 async def on_startup(dispatcher):
     # Birlamchi komandaPlar (/star va /help)
