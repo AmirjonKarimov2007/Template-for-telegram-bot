@@ -9,7 +9,7 @@ import asyncio
 from random import choice
 from datetime import datetime
 CHANNELS = {'@Amirjon_Karimov_Blog':523, '@Amirjon_Karimov_Life':113}
-
+# tugirlandi
 reactions = ["👍", "❤", "🔥", "🥰", "👏", "🎉", "🤩", "👌", "😍", "❤‍🔥", "💯", "🤣", "⚡", "🏆", "🍓", "🍾", "💋", "🎃", "😇", "🤝", "😘"]
 
 async def periodic_reaction(dp):
