@@ -32,7 +32,7 @@ async def periodic_reaction(dp):
                         }
                     )
                 except Exception as e:
-                    await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}")
+                    await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}:{reaction}")
                     del data[channel]
                     with open('channels_info.json', 'w') as file:
                         json.dump(data, file, indent=4)
@@ -50,9 +50,8 @@ async def periodic_reaction(dp):
                         "reaction": f"[{reaction}]"
                     }
                 )
-                print(f"bosildi:kanel{channel}:{reaction}")
             except Exception as e:
-                await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}")
+                await dp.bot.send_message(chat_id=ADMINS[0], text=f"Error: {e}:{reaction}")
             await asyncio.sleep(20)
 
 async def on_startup(dispatcher):
