@@ -1,7 +1,8 @@
 from aiogram import types
 from aiogram.dispatcher.filters.builtin import CommandHelp
 from filters.users import IsGroup,IsBlocked
-from loader import dp
+
+from loader import db,dp,bot
 
 @dp.message_handler(IsGroup())
 async def falsereturn(message: types.Message):

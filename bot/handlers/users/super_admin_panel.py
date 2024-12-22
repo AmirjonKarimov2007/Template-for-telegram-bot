@@ -189,8 +189,10 @@ async def stat(call: types.CallbackQuery):
     daily_stat = await db.stat(timeframe="daily")
     weekly_stat = await db.stat(timeframe="weekly")
     monthly_stat = await db.stat(timeframe="monthly")
+    all_users = await db.stat(timeframe="all_users")
 
     stat_message = f"<b>👥 Bot foydalanuvchilari soni:</b>\n"
+    stat_message += f"<b>♻️ Jami obunachilar: {all_users} nafar</b>\n"
     stat_message += f"<b>📅 Kunlik: {daily_stat} nafar</b>\n"
     stat_message += f"<b>📆 Haftalik: {weekly_stat} nafar</b>\n"
     stat_message += f"<b>📅 Oylik: {monthly_stat} nafar</b>\n"
